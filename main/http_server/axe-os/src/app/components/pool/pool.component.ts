@@ -1,6 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ValidatorFn, ValidationErrors, AbstractControl } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { take } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { LoadingService } from 'src/app/services/loading.service';
 import { SystemApiService } from 'src/app/services/system.service';
@@ -39,10 +41,21 @@ export class PoolComponent implements OnInit {
     private fb: FormBuilder,
     private systemService: SystemApiService,
     private toastr: ToastrService,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
+    this.route.queryParams.pipe(take(1)).subscribe(params => {
+      const device = params['device'];
+      if (device) {
+        this.uri = device.startsWith('http') ? device : `http://${device}`;
+      }
+      this.loadPoolConfig();
+    });
+  }
+
+  private loadPoolConfig(): void {
     this.systemService.getInfo(this.uri)
       .pipe(
         this.loadingService.lockUIUntilComplete()

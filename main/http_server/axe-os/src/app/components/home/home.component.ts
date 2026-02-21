@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, Input, OnDestroy } from '@angular/core';
-import { interval, map, Observable, shareReplay, startWith, Subscription, switchMap, tap, first, Subject, takeUntil, BehaviorSubject, filter, catchError, of, combineLatest } from 'rxjs';
+import { interval, map, Observable, shareReplay, startWith, Subscription, switchMap, tap, first, Subject, takeUntil, BehaviorSubject, filter, catchError, of, combineLatest, forkJoin, take } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
@@ -20,6 +20,9 @@ import { eChartLabel } from 'src/models/enum/eChartLabel';
 import { chartLabelValue } from 'src/models/enum/eChartLabel';
 import { chartLabelKey } from 'src/models/enum/eChartLabel';
 import { LocalStorageService } from 'src/app/local-storage.service';
+import { PoolTemplateService, PoolTemplate } from 'src/app/services/pool-template.service';
+
+const SWARM_DATA = 'SWARM_DATA';
 
 type PoolLabel = 'Primary' | 'Fallback';
 type MessageType =
@@ -99,6 +102,16 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   @Input() uri = '';
 
+  /** Swarm on dashboard */
+  public swarm: any[] = [];
+  public selectedSwarmIps = new Set<string>();
+  public poolTemplates: PoolTemplate[] = [];
+  public showBulkPoolDialog = false;
+  public bulkPoolForm!: FormGroup;
+  public bulkPoolSaving = false;
+  public saveTemplateName = '';
+  public selectedTemplateForApply: PoolTemplate | null = null;
+
   constructor(
     private fb: FormBuilder,
     private systemService: SystemApiService,
@@ -108,7 +121,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private loadingService: LoadingService,
     private toastr: ToastrService,
     private shareRejectReasonsService: ShareRejectionExplanationService,
-    private storageService: LocalStorageService
+    private storageService: LocalStorageService,
+    private poolTemplateService: PoolTemplateService
   ) {
     this.initializeChart();
   }
@@ -133,9 +147,136 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.form.valueChanges.subscribe(() => {
       this.updateSystem();
-    })
+    });
 
+    this.swarm = this.storageService.getObject(SWARM_DATA) ?? [];
+    this.poolTemplates = this.poolTemplateService.getAll();
+    this.initBulkPoolForm();
     this.loadPreviousData();
+  }
+
+  private initBulkPoolForm(): void {
+    this.bulkPoolForm = this.fb.group({
+      stratumURL: ['', []],
+      stratumPort: [3333, []],
+      stratumUser: ['', []],
+      stratumPassword: ['', []],
+      stratumTLS: [0, []]
+    });
+  }
+
+  get swarmSelectedCount(): number {
+    return this.selectedSwarmIps.size;
+  }
+
+  isSwarmSelected(ip: string): boolean {
+    return this.selectedSwarmIps.has(ip);
+  }
+
+  toggleSwarmSelection(ip: string): void {
+    if (this.selectedSwarmIps.has(ip)) {
+      this.selectedSwarmIps.delete(ip);
+    } else {
+      this.selectedSwarmIps.add(ip);
+    }
+    this.selectedSwarmIps = new Set(this.selectedSwarmIps);
+  }
+
+  selectAllSwarm(): void {
+    if (this.selectedSwarmIps.size === this.swarm.length) {
+      this.selectedSwarmIps.clear();
+    } else {
+      this.swarm.forEach(d => this.selectedSwarmIps.add(d.IP));
+    }
+    this.selectedSwarmIps = new Set(this.selectedSwarmIps);
+  }
+
+  applyTemplateToSelected(template: PoolTemplate | null): void {
+    if (!template) return;
+    const ips = Array.from(this.selectedSwarmIps);
+    if (!ips.length) {
+      this.toastr.warning('Chọn ít nhất một thiết bị.');
+      return;
+    }
+    const payload = this.poolTemplateService.toPatchPayload(template);
+    this.bulkPoolSaving = true;
+    forkJoin(
+      ips.map(ip => this.systemService.updateSystem(`http://${ip}`, payload).pipe(
+        map(() => ({ ip, ok: true })),
+        catchError(err => of({ ip, ok: false, err }))
+      ))
+    ).pipe(this.loadingService.lockUIUntilComplete()).subscribe(results => {
+      this.bulkPoolSaving = false;
+      const ok = results.filter(r => r.ok).length;
+      const fail = results.filter(r => !r.ok).length;
+      if (ok) this.toastr.success(`Đã áp dụng template cho ${ok} thiết bị. Khởi động lại thiết bị để có hiệu lực.`);
+      if (fail) this.toastr.error(`Lỗi ${fail} thiết bị.`);
+      this.selectedSwarmIps.clear();
+      this.selectedSwarmIps = new Set(this.selectedSwarmIps);
+      this.selectedTemplateForApply = null;
+    });
+  }
+
+  openBulkEditPool(): void {
+    if (!this.selectedSwarmIps.size) {
+      this.toastr.warning('Chọn ít nhất một thiết bị.');
+      return;
+    }
+    this.bulkPoolForm.reset({ stratumURL: '', stratumPort: 3333, stratumUser: '', stratumPassword: '', stratumTLS: 0 });
+    this.showBulkPoolDialog = true;
+  }
+
+  saveBulkPool(): void {
+    if (this.bulkPoolForm.invalid) return;
+    const ips = Array.from(this.selectedSwarmIps);
+    const raw = this.bulkPoolForm.getRawValue();
+    const payload: any = {
+      stratumURL: raw.stratumURL,
+      stratumPort: +raw.stratumPort,
+      stratumUser: raw.stratumUser,
+      stratumTLS: raw.stratumTLS ?? 0
+    };
+    if (raw.stratumPassword) payload.stratumPassword = raw.stratumPassword;
+    this.bulkPoolSaving = true;
+    forkJoin(
+      ips.map(ip => this.systemService.updateSystem(`http://${ip}`, payload).pipe(
+        map(() => ({ ip, ok: true })),
+        catchError(err => of({ ip, ok: false, err }))
+      ))
+    ).pipe(this.loadingService.lockUIUntilComplete()).subscribe(results => {
+      this.bulkPoolSaving = false;
+      const ok = results.filter(r => r.ok).length;
+      const fail = results.filter(r => !r.ok).length;
+      if (ok) this.toastr.success(`Đã cập nhật pool cho ${ok} thiết bị. Khởi động lại thiết bị để có hiệu lực.`);
+      if (fail) this.toastr.error(`Lỗi ${fail} thiết bị.`);
+      this.showBulkPoolDialog = false;
+      this.selectedSwarmIps.clear();
+      this.selectedSwarmIps = new Set(this.selectedSwarmIps);
+    });
+  }
+
+  saveCurrentAsTemplate(): void {
+    this.info$.pipe(take(1)).subscribe(info => {
+      const name = this.saveTemplateName.trim() || `Pool ${info.stratumURL}:${info.stratumPort}`;
+      this.poolTemplateService.save({
+        name,
+        stratumURL: info.stratumURL,
+        stratumPort: info.stratumPort,
+        stratumUser: info.stratumUser,
+        stratumPassword: '', // not stored for security; user re-enters when editing
+        stratumTLS: info.stratumTLS ?? 0,
+        stratumSuggestedDifficulty: info.stratumSuggestedDifficulty,
+        stratumExtranonceSubscribe: info.stratumExtranonceSubscribe ?? false,
+        stratumDecodeCoinbase: info.stratumDecodeCoinbase ?? true
+      });
+      this.poolTemplates = this.poolTemplateService.getAll();
+      this.saveTemplateName = '';
+      this.toastr.success(`Đã lưu template "${name}".`);
+    });
+  }
+
+  closeBulkPoolDialog(): void {
+    this.showBulkPoolDialog = false;
   }
 
   ngOnDestroy() {

@@ -24,165 +24,93 @@
         </div>
     </div>
 
-    <div class="grid">
-        <div class="col-12 md:col-6 xl:col-3">
-            <div class="card mb-0">
-                <div class="flex flex-column justify-content-between">
-                    <span class="block text-lg font-medium mb-3">Hashrate</span>
-
-                    <ng-container *ngIf="!info.power_fault; else powerFault">
-                        <div class="flex align-items-center justify-content-between gap-2 mb-3">
-                            <span class="text-900 font-medium text-2xl white-space-nowrap">
-                                {{info.hashRate | hashSuffix}}
-                            </span>
-                            <table class="text-sm">
-                                <thead>
-                                    <tr>
-                                        <th class="p-0 text-400 font-normal line-height-1">
-                                            <tooltip-text-icon class="pl-2"
-                                                text="Error"
-                                                tooltip="Hash error percentage as reported by the ASIC. A small amount of errors every few seconds is normal. Frequency changes, agressive overclocking, undervoltage or a bad power supply can significantly increase the error rate."
-                                            />
-                                        </th>
-                                        <th *ngIf="info.expectedHashrate" class="p-0 pl-3 text-400 font-normal line-height-1">
-                                            Expected
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="p-0 text-center text-800 line-height-1">
-                                            {{info.errorPercentage | number: '1.2-2'}}%
-                                        </td>
-                                        <td *ngIf="info.expectedHashrate" class="p-0 pl-3 text-center text-800 line-height-1 white-space-nowrap">
-                                            {{info.expectedHashrate | hashSuffix: { tickmark: true } }}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <table class="px-1 border-1 border-50 border-round-xs">
-                            <thead>
-                                <tr>
-                                    <th *ngFor="let i of hashrateAverages" class="p-0 text-500 font-normal line-height-1">
-                                        {{i.label}}
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td *ngFor="let i of hashrateAverages" class="p-0 text-center text-green-500 font-medium">
-                                        {{ info[i.key] | hashSuffix }}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </ng-container>
-                </div>
-            </div>
-        </div>
-        <div class="col-12 md:col-6 xl:col-3">
-            <div class="card mb-0">
-                <div class="flex flex-column justify-content-between">
-                    <span class="block text-lg font-medium mb-3">Efficiency</span>
-
-                    <ng-container *ngIf="!info.power_fault; else powerFault">
-                        <div class="flex align-items-center justify-content-between gap-2 mb-3">
-                            <span class="text-900 font-medium text-2xl white-space-nowrap">
-                                {{getEfficiency(info) | number: '1.2-2'}} J/Th
-                            </span>
-                            <table class="text-sm">
-                                <thead>
-                                    <tr>
-                                        <th class="p-0 text-400 font-normal line-height-1">
-                                            Expected
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="p-0 text-center text-800 line-height-1 white-space-nowrap">
-                                            {{getExpectedEfficiency(info) | number: '1.2-2'}} J/Th
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div>
-                            <span class="text-green-500 font-medium white-space-nowrap">
-                                {{getEfficiencyAverage() | number: '1.2-2'}} J/Th
-                            </span>
-                            <span class="text-500">
-                                Average
-                            </span>
-                        </div>
-                    </ng-container>
-                </div>
-            </div>
-        </div>
-        <div class="col-12 md:col-6 xl:col-3">
-            <div class="card mb-0">
-                <div class="flex justify-content-between mb-3">
-                    <div>
-                        <span class="block text-lg font-medium mb-3">Shares</span>
-                        <div class="text-900 font-medium text-2xl">
-                            {{info.sharesAccepted | number: '1.0-0'}}
-                        </div>
-                    </div>
-                </div>
-                <div *ngIf="info.sharesRejected === 0">
-                    <span class="text-red-500 font-medium">0 </span>
-                    <span class="text-500">rejected</span>
-                </div>
-                <ng-container *ngIf="info.sharesRejected > 0">
-                    <div *ngFor="let sharesRejectedReason of getSortedRejectionReasons(info); trackBy: trackByReason">
-                        <span class="text-red-500 font-medium">
-                            {{ sharesRejectedReason.count | number: '1.0-0' }}
-                        </span>
-                        <span class="text-500">
-                            {{ sharesRejectedReason.message }}
-                        </span>
-                        <tooltip-text-icon
-                            [text]="'(' + (getShareRejectionPercentage(sharesRejectedReason, info) | number:'1.2-2') + ' %)'"
-                            [tooltip]="getRejectionExplanation(sharesRejectedReason.message)"
-                            [split]=false />
-                    </div>
+    <!-- Compact stats row - Minimal/Flat -->
+    <div class="grid mb-3">
+        <div class="col-6 md:col-3">
+            <div class="dashboard-card-flat">
+                <div class="dashboard-section-title">Hashrate</div>
+                <ng-container *ngIf="!info.power_fault; else powerFault">
+                    <span class="text-900 font-semibold text-xl">{{ info.hashRate | hashSuffix }}</span>
+                    <span class="text-500 text-sm ml-2">{{ info.errorPercentage | number:'1.1-1' }}% err</span>
                 </ng-container>
             </div>
         </div>
-
-        <div class="col-12 md:col-6 xl:col-3">
-            <div class="card mb-0">
-                <div class="flex justify-content-between mb-3">
-                    <div>
-                        <span class="block text-lg font-medium mb-3">Best Difficulty</span>
-                        <div class="text-900 font-medium text-2xl">
-                            <span class="cursor-pointer" pTooltip="{{info.bestDiff | number:'1.0-0'}}" tooltipPosition="bottom">
-                                {{info.bestDiff | diffSuffix}}
-                            </span>
-                            <span class="text-500 text-lg">all-time best</span>
-                            <span class="text-sm font-medium mb-3" *ngIf="info.networkDifficulty">
-                                <tooltip-text-icon
-                                    [text]="'(' + getNetworkDifficultyPercentage(info) + '%)'"
-                                    tooltip="Chance to find a Block"
-                                    [split]="false"
-                                />
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <span class="text-900 font-medium cursor-pointer" pTooltip="{{info.bestSessionDiff | number:'1.0-0'}}" tooltipPosition="bottom">
-                        {{info.bestSessionDiff | diffSuffix}}
-                    </span>
-                    <span class="text-500 text-lg">session best</span>
-                    <span class="text-sm font-medium mb-3"> ({{ info.uptimeSeconds | dateAgo: { intervals: 2, strict:true, short:true } }})</span>
-                </div>
+        <div class="col-6 md:col-3">
+            <div class="dashboard-card-flat">
+                <div class="dashboard-section-title">Shares</div>
+                <span class="text-900 font-semibold text-xl">{{ info.sharesAccepted | number:'1.0-0' }}</span>
+                <span class="text-500 text-sm ml-2" *ngIf="info.sharesRejected > 0">{{ info.sharesRejected }} rej</span>
             </div>
         </div>
+        <div class="col-6 md:col-3">
+            <div class="dashboard-card-flat">
+                <div class="dashboard-section-title">Best Diff</div>
+                <span class="text-900 font-semibold text-xl">{{ info.bestDiff | diffSuffix }}</span>
+            </div>
+        </div>
+        <div class="col-6 md:col-3">
+            <div class="dashboard-card-flat">
+                <div class="dashboard-section-title">Pool</div>
+                <span class="text-900 font-medium" *ngIf="activePoolURL">{{ activePoolURL }}:{{ activePoolPort }}</span>
+                <span class="text-500 text-sm" *ngIf="info.responseTime > 0">{{ info.responseTime | number:'1.0-0' }} ms</span>
+            </div>
+        </div>
+    </div>
 
+    <!-- Swarm list on dashboard + Bulk edit pool + Templates -->
+    <div class="dashboard-card-flat mb-3">
+        <div class="flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+            <span class="dashboard-section-title mb-0">Swarm</span>
+            <div class="flex align-items-center gap-2 flex-wrap">
+                <p-button *ngIf="swarm.length" label="Chọn tất cả" icon="pi pi-check-square" [outlined]="true" size="small" (onClick)="selectAllSwarm()"></p-button>
+                <p-dropdown *ngIf="swarmSelectedCount > 0 && poolTemplates.length" [(ngModel)]="selectedTemplateForApply" [options]="poolTemplates" optionLabel="name" placeholder="Áp dụng template" size="small" (onChange)="applyTemplateToSelected($event.value)" styleClass="p-button-outlined"></p-dropdown>
+                <p-button *ngIf="swarmSelectedCount > 0" label="Sửa pool hàng loạt" icon="pi pi-pencil" [outlined]="true" size="small" (onClick)="openBulkEditPool()"></p-button>
+                <span class="flex align-items-center gap-1" *ngIf="swarm.length && !swarmSelectedCount">
+                    <input pInputText [(ngModel)]="saveTemplateName" placeholder="Tên template" class="w-8rem" size="small" />
+                    <p-button label="Lưu pool hiện tại" icon="pi pi-save" [outlined]="true" size="small" (onClick)="saveCurrentAsTemplate()"></p-button>
+                </span>
+            </div>
+        </div>
+        <ng-container *ngIf="swarm.length; else noSwarm">
+            <div class="overflow-x-auto">
+                <table class="swarm-table-minimal">
+                    <thead>
+                        <tr>
+                            <th style="width: 2.5rem"><p-checkbox [binary]="true" [ngModel]="swarm.length && selectedSwarmIps.size === swarm.length" (ngModelChange)="selectAllSwarm()"></p-checkbox></th>
+                            <th>Hostname / IP</th>
+                            <th>Hashrate</th>
+                            <th>Shares</th>
+                            <th>Pool Diff</th>
+                            <th>Temp</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let d of swarm">
+                            <td><p-checkbox [binary]="true" [ngModel]="isSwarmSelected(d.IP)" (ngModelChange)="toggleSwarmSelection(d.IP)"></p-checkbox></td>
+                            <td>
+                                <a [href]="'http://' + d.IP" target="_blank" class="text-900 font-medium">{{ d.hostname || d.IP }}</a>
+                                <span class="text-500 text-sm block">{{ d.IP }}</span>
+                            </td>
+                            <td>{{ d.hashRate | hashSuffix }}</td>
+                            <td>{{ d.sharesAccepted | number:'1.0-0' }}</td>
+                            <td>{{ d.poolDifficulty }}</td>
+                            <td>{{ d.temp > 0 ? (d.temp | number:'1.0-0') + ' °C' : '--' }}</td>
+                            <td>
+                                <a [routerLink]="['/pool']" [queryParams]="{ device: d.IP }" pButton icon="pi pi-cog" class="p-button-text p-button-sm"></a>
+                                <a [href]="'http://' + d.IP" target="_blank" pButton icon="pi pi-external-link" class="p-button-text p-button-sm"></a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </ng-container>
+        <ng-template #noSwarm>
+            <p class="text-500 text-sm m-0">Chưa có thiết bị trong swarm. Vào <a routerLink="/swarm">Swarm</a> để quét mạng hoặc thêm thiết bị.</p>
+        </ng-template>
+    </div>
+
+    <div class="grid">
         <div class="col-12" *ngIf="!info.power_fault">
             <div class="card">
                 <form [formGroup]="form">
@@ -545,4 +473,30 @@
     </div>
 
     <app-confetti *ngIf="info.showNewBlock"></app-confetti>
+
+    <!-- Bulk Edit Pool Dialog -->
+    <p-dialog header="Sửa pool hàng loạt" [(visible)]="showBulkPoolDialog" [modal]="true" [style]="{ width: '28rem' }" [draggable]="false" [resizable]="false" (onHide)="closeBulkPoolDialog()">
+        <form [formGroup]="bulkPoolForm" class="flex flex-column gap-3">
+            <div class="field">
+                <label for="bulk-stratumURL">Stratum Host</label>
+                <input pInputText id="bulk-stratumURL" formControlName="stratumURL" class="w-full" />
+            </div>
+            <div class="field">
+                <label for="bulk-stratumPort">Port</label>
+                <input pInputText id="bulk-stratumPort" formControlName="stratumPort" type="number" class="w-full" />
+            </div>
+            <div class="field">
+                <label for="bulk-stratumUser">User</label>
+                <input pInputText id="bulk-stratumUser" formControlName="stratumUser" class="w-full" sensitive-data />
+            </div>
+            <div class="field">
+                <label for="bulk-stratumPassword">Password</label>
+                <input pInputText id="bulk-stratumPassword" formControlName="stratumPassword" type="password" class="w-full" />
+            </div>
+        </form>
+        <ng-template pTemplate="footer">
+            <p-button label="Hủy" (onClick)="closeBulkPoolDialog()" [text]="true"></p-button>
+            <p-button label="Áp dụng cho {{ swarmSelectedCount }} thiết bị" (onClick)="saveBulkPool()" [loading]="bulkPoolSaving" [disabled]="bulkPoolForm?.invalid"></p-button>
+        </ng-template>
+    </p-dialog>
 </ng-container>

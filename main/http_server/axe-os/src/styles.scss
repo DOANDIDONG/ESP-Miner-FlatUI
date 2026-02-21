@@ -260,3 +260,46 @@ button.color-dot {
     font-family: monospace;
     font-size: medium;
 }
+
+/* --- Minimal / Flat Design overrides --- */
+.card {
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--surface-border, #e5e7eb);
+}
+
+.dashboard-card-flat {
+    background: var(--surface-card);
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    box-shadow: none;
+}
+
+.dashboard-section-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-color-secondary);
+    letter-spacing: 0.02em;
+    margin-bottom: 0.75rem;
+}
+
+.swarm-table-minimal {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.875rem;
+    thead th {
+        text-align: left;
+        padding: 0.5rem 0.75rem;
+        font-weight: 500;
+        color: var(--text-color-secondary);
+        border-bottom: 1px solid var(--surface-border);
+    }
+    tbody td {
+        padding: 0.5rem 0.75rem;
+        border-bottom: 1px solid var(--surface-100);
+    }
+    tbody tr:hover {
+        background: var(--surface-50);
+    }
+}
