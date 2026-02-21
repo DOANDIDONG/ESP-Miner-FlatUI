@@ -12,28 +12,26 @@
         &.layout-overlay {
             .layout-main-container {
                 margin-left: 0;
-                padding-left: 2rem;
+                padding-left: 1rem;
             }
 
             .layout-sidebar {
                 transform: translateX(-100%);
                 left: 0;
-                top: 0;
-                height: 100vh;
-                border-top-left-radius: 0;
-                border-bottom-left-radius: 0;
+                top: var(--topbar-height);
+                height: calc(100vh - var(--topbar-height));
+                border-radius: 0;
+                border-left: none;
             }
 
-            &.layout-overlay-active {
-                .layout-sidebar {
-                    transform: translateX(0);
-                }
+            &.layout-overlay-active .layout-sidebar {
+                transform: translateX(0);
             }
         }
 
         &.layout-static {
             .layout-main-container {
-                margin-left: calc(var(--sidebar-width) + 2rem);
+                margin-left: calc(var(--sidebar-width) + 1.5rem);
             }
 
             &.layout-static-inactive {
@@ -41,10 +39,9 @@
                     transform: translateX(-100%);
                     left: 0;
                 }
-
                 .layout-main-container {
                     margin-left: 0;
-                    padding-left: 2rem;
+                    padding-left: 1rem;
                 }
             }
         }
@@ -68,10 +65,10 @@
         .layout-sidebar {
             transform: translateX(-100%);
             left: 0;
-            top: 0;
-            height: 100vh;
-            border-top-left-radius: 0;
-            border-bottom-left-radius: 0;
+            top: var(--topbar-height);
+            height: calc(100vh - var(--topbar-height));
+            border-radius: 0;
+            border-left: none;
         }
 
         .layout-mask {
@@ -82,14 +79,13 @@
             z-index: 998;
             width: 100%;
             height: 100%;
-            background-color: var(--maskbg);
+            background: var(--maskbg);
         }
 
         &.layout-mobile-active {
             .layout-sidebar {
                 transform: translateX(0);
             }
-
             .layout-mask {
                 display: block;
                 animation: fadein $transitionDuration;

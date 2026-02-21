@@ -1,10 +1,10 @@
-<div class="card">
-    <h2>Update</h2>
-
+<div>
+    <h1 class="page-title">Update</h1>
     <div class="grid">
         <div class="col-12 xl:col-4">
-            <div class="card h-full">
-                <h5>Current Version: {{(info$ | async)?.version}}</h5>
+            <div class="card-minimal h-full">
+                <div class="section-title">Current Version</div>
+                <p class="m-0 font-semibold">{{ (info$ | async)?.version }}</p>
 
                 <ng-container *ngIf="checkLatestRelease == false; else afterCheck">
                     <h3>Latest Release: <p-button (onClick)="handleReleaseCheck()">Check</p-button></h3>
@@ -59,8 +59,8 @@
             </div>
         </div>
         <div class="col-12 lg:col-6 xl:col-4">
-            <div class="card h-full">
-                <h3>Update AxeOS <span *ngIf="websiteUpdateProgress != null">{{websiteUpdateProgress}} %</span></h3>
+            <div class="card-minimal h-full">
+                <div class="section-title">Update AxeOS <span *ngIf="websiteUpdateProgress != null">{{ websiteUpdateProgress }}%</span></div>
 
                 <p-fileUpload #websiteUpload [customUpload]="true" mode="basic" accept=".bin" (uploadHandler)="otaWWWUpdate($event)"
                     [auto]="true" chooseLabel="Browse"></p-fileUpload>
@@ -69,8 +69,8 @@
             </div>
         </div>
         <div class="col-12 lg:col-6 xl:col-4">
-            <div class="card h-full">
-                <h3>Update Firmware <span *ngIf="firmwareUpdateProgress != null">{{firmwareUpdateProgress}} %</span></h3>
+            <div class="card-minimal h-full">
+                <div class="section-title">Update Firmware <span *ngIf="firmwareUpdateProgress != null">{{ firmwareUpdateProgress }}%</span></div>
                 <p-fileUpload #firmwareUpload [customUpload]="true" mode="basic" accept=".bin" (uploadHandler)="otaUpdate($event)"
                     [auto]="true" chooseLabel="Browse"></p-fileUpload>
 

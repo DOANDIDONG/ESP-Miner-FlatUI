@@ -7,11 +7,12 @@
 }
 
 * {
-    font-family: 'Nippo-Regular';
+    font-family: var(--font-family);
 }
 
 @import "app/layout/styles/layout/layout.scss";
 @import "app/layout/styles/theme/themes/vela/bitaxe/theme.scss";
+@import "app/layout/styles/theme/themes/minimal-axeos.scss";
 
 @import "app/layout/styles/modules/primeicons.css";
 @import "app/layout/styles/modules/primeng.min.css";
@@ -261,32 +262,36 @@ button.color-dot {
     font-size: medium;
 }
 
-/* --- Minimal / Flat Design overrides --- */
+/* ========== AxeOS Minimal design system ========== */
 .card {
+    background: var(--surface-card);
+    border: 1px solid var(--surface-border);
     border-radius: 8px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-    border: 1px solid var(--surface-border, #e5e7eb);
+    padding: 1.25rem;
+    box-shadow: none;
 }
-
-.dashboard-card-flat {
+.card-minimal {
     background: var(--surface-card);
     border: 1px solid var(--surface-border);
     border-radius: 8px;
     padding: 1rem 1.25rem;
-    box-shadow: none;
 }
-
-.dashboard-section-title {
-    font-size: 0.875rem;
+.section-title {
+    font-size: 0.75rem;
     font-weight: 600;
     color: var(--text-color-secondary);
-    letter-spacing: 0.02em;
-    margin-bottom: 0.75rem;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.5rem;
 }
-
-.swarm-table-minimal {
-    border-collapse: collapse;
+.page-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0 0 1rem;
+}
+.table-minimal {
     width: 100%;
+    border-collapse: collapse;
     font-size: 0.875rem;
     thead th {
         text-align: left;
@@ -302,4 +307,37 @@ button.color-dot {
     tbody tr:hover {
         background: var(--surface-50);
     }
+}
+.form-row {
+    margin-bottom: 1rem;
+    label {
+        display: block;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--text-color-secondary);
+        margin-bottom: 0.25rem;
+    }
+}
+.p-dialog {
+    border-radius: 8px;
+    border: 1px solid var(--surface-border);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    .p-dialog-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--surface-border);
+    }
+    .p-dialog-content {
+        padding: 1.25rem;
+    }
+    .p-dialog-footer {
+        padding: 1rem 1.25rem;
+        border-top: 1px solid var(--surface-border);
+    }
+}
+.p-message {
+    border-radius: 8px;
+    border: 1px solid;
+}
+.p-inline-message {
+    border-radius: 8px;
 }

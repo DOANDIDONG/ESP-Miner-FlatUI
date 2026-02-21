@@ -1,5 +1,4 @@
-<div [ngClass]="{'card': (form$ | async), 'hidden': !(form$ | async)}">
-    <h2>Network Configuration</h2>
-
+<div [ngClass]="{'card-minimal': (form$ | async), 'hidden': !(form$ | async)}">
+    <h1 class="page-title">Network</h1>
     <app-network-edit></app-network-edit>
 </div>
