@@ -57,7 +57,7 @@
                         </div>
                         <span class="text-danger" *ngIf="info.sharesRejected > 0">{{ info.sharesRejected }}</span>
                         <span class="text-500 text-sm" *ngIf="info.sharesRejected > 0"> rejected</span>
-                        <span class="text-500 text-sm" *ngIf="info.sharesRejected > 0"> ({{ (info.sharesAccepted + info.sharesRejected) > 0 ? (info.sharesRejected / (info.sharesAccepted + info.sharesRejected) * 100) | number:'1.1-1' : 0 }}%)</span>
+                        <span class="text-500 text-sm" *ngIf="info.sharesRejected > 0"> ({{ ((info.sharesAccepted + info.sharesRejected) > 0 ? (info.sharesRejected / (info.sharesAccepted + info.sharesRejected) * 100) : 0) | number:'1.1-1' }}%)</span>
                     </div>
                 </div>
             </div>
@@ -69,7 +69,7 @@
                     <div class="nb-card-body">
                         <div class="flex justify-content-between align-items-center mb-2">
                             <div>
-                                <span class="font-weight-bold text-lg">{{ info.hashRate > 0 ? (info.power / (info.hashRate / 1000)) | number:'1.2-2' : '--' }} <small>J/Th</small></span>
+                                <span class="font-weight-bold text-lg">{{ ((info.hashRate > 0 ? (info.power / (info.hashRate / 1000)) : null) | number:'1.2-2') || '--' }} <small>J/Th</small></span>
                             </div>
                             <div class="stat-card-icon orange">
                                 <i class="pi pi-check"></i>
