@@ -1,18 +1,12 @@
 <ng-template #noValue>--</ng-template>
 
 <ng-template #powerFault>
-    <span class="text-red-500">
-        Not available - Power fault
-    </span>
+    <span class="text-red-500">Not available - Power fault</span>
 </ng-template>
 
 <ng-container *ngIf="info$ | async as info">
     <ng-container *ngFor="let message of messages">
-        <p-message
-            [severity]="message.severity"
-            [text]="message.text"
-            [styleClass]="'w-full mb-3 py-3 border-round-lg'"
-        />
+        <p-message [severity]="message.severity" [text]="message.text" [styleClass]="'w-full mb-3 py-3 border-round-lg'" />
     </ng-container>
 
     <div *ngIf="info.showNewBlock" class="p-inline-message p-inline-message-success w-full mb-3 py-3 border-round-lg">
@@ -24,433 +18,361 @@
         </div>
     </div>
 
-    <!-- Stats row (NerdQAxe style: white cards, clear labels) -->
-    <div class="grid mb-3">
-        <div class="col-6 md:col-3">
-            <div class="card-minimal">
-                <div class="section-title">Hash rate</div>
-                <ng-container *ngIf="!info.power_fault; else powerFault">
-                    <span class="text-900 font-semibold text-xl">{{ info.hashRate | hashSuffix }}</span>
-                    <span class="text-500 text-sm ml-2">{{ info.errorPercentage | number:'1.1-1' }}% err</span>
-                </ng-container>
-            </div>
-        </div>
-        <div class="col-6 md:col-3">
-            <div class="card-minimal">
-                <div class="section-title">Shares</div>
-                <span class="text-900 font-semibold text-xl">{{ info.sharesAccepted | number:'1.0-0' }}</span>
-                <span class="text-500 text-sm ml-2" *ngIf="info.sharesRejected > 0">{{ info.sharesRejected }} rej</span>
-            </div>
-        </div>
-        <div class="col-6 md:col-3">
-            <div class="card-minimal">
-                <div class="section-title">Best diff</div>
-                <span class="text-900 font-semibold text-xl">{{ info.bestDiff | diffSuffix }}</span>
-            </div>
-        </div>
-        <div class="col-6 md:col-3">
-            <div class="card-minimal">
-                <div class="section-title">Pool</div>
-                <span class="text-900 font-medium" *ngIf="activePoolURL">{{ activePoolURL }}:{{ activePoolPort }}</span>
-                <span class="text-500 text-sm" *ngIf="info.responseTime > 0">{{ info.responseTime | number:'1.0-0' }} ms</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Swarm -->
-    <div class="card-minimal mb-3">
-        <div class="flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
-            <span class="section-title mb-0">Swarm</span>
-            <div class="flex align-items-center gap-2 flex-wrap">
-                <p-button *ngIf="swarm.length" label="Chọn tất cả" icon="pi pi-check-square" [outlined]="true" size="small" (onClick)="selectAllSwarm()"></p-button>
-                <p-dropdown *ngIf="swarmSelectedCount > 0 && poolTemplates.length" [(ngModel)]="selectedTemplateForApply" [options]="poolTemplates" optionLabel="name" placeholder="Áp dụng template" size="small" (onChange)="applyTemplateToSelected($event.value)" styleClass="p-button-outlined"></p-dropdown>
-                <p-button *ngIf="swarmSelectedCount > 0" label="Sửa pool hàng loạt" icon="pi pi-pencil" [outlined]="true" size="small" (onClick)="openBulkEditPool()"></p-button>
-                <span class="flex align-items-center gap-1" *ngIf="swarm.length && !swarmSelectedCount">
-                    <input pInputText [(ngModel)]="saveTemplateName" placeholder="Tên template" class="w-8rem" size="small" />
-                    <p-button label="Lưu pool hiện tại" icon="pi pi-save" [outlined]="true" size="small" (onClick)="saveCurrentAsTemplate()"></p-button>
-                </span>
-            </div>
-        </div>
-        <ng-container *ngIf="swarm.length; else noSwarm">
-            <div class="overflow-x-auto">
-                <table class="table-minimal">
-                    <thead>
-                        <tr>
-                            <th style="width: 2.5rem"><p-checkbox [binary]="true" [ngModel]="swarm.length && selectedSwarmIps.size === swarm.length" (ngModelChange)="selectAllSwarm()"></p-checkbox></th>
-                            <th>Hostname / IP</th>
-                            <th>Hashrate</th>
-                            <th>Shares</th>
-                            <th>Pool Diff</th>
-                            <th>Temp</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let d of swarm">
-                            <td><p-checkbox [binary]="true" [ngModel]="isSwarmSelected(d.IP)" (ngModelChange)="toggleSwarmSelection(d.IP)"></p-checkbox></td>
-                            <td>
-                                <a [href]="'http://' + d.IP" target="_blank" class="text-900 font-medium">{{ d.hostname || d.IP }}</a>
-                                <span class="text-500 text-sm block">{{ d.IP }}</span>
-                            </td>
-                            <td>{{ d.hashRate | hashSuffix }}</td>
-                            <td>{{ d.sharesAccepted | number:'1.0-0' }}</td>
-                            <td>{{ d.poolDifficulty }}</td>
-                            <td>{{ d.temp > 0 ? (d.temp | number:'1.0-0') + ' °C' : '--' }}</td>
-                            <td>
-                                <a [routerLink]="['/pool']" [queryParams]="{ device: d.IP }" pButton icon="pi pi-cog" class="p-button-text p-button-sm"></a>
-                                <a [href]="'http://' + d.IP" target="_blank" pButton icon="pi pi-external-link" class="p-button-text p-button-sm"></a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </ng-container>
-        <ng-template #noSwarm>
-            <p class="text-500 text-sm m-0">Chưa có thiết bị trong swarm. Vào <a routerLink="/swarm">Swarm</a> để quét mạng hoặc thêm thiết bị.</p>
-        </ng-template>
-    </div>
-
-    <div class="grid">
-        <div class="col-12" *ngIf="!info.power_fault">
-            <div class="card-minimal">
-                <div class="section-title mb-2">Hash rate chart</div>
-                <form [formGroup]="form">
-                    <div class="flex flex-nowrap justify-content-between mb-3">
-                        <p-dropdown
-                            [options]="dataSourceLabels(info)"
-                            optionLabel="name"
-                            optionValue="value"
-                            formControlName="chartY1Data"
-                            styleClass="w-10rem border-100 p-dropdown--small">
-                        </p-dropdown>
-                        <p-dropdown
-                            [options]="dataSourceLabels(info)"
-                            optionLabel="name"
-                            optionValue="value"
-                            formControlName="chartY2Data"
-                            styleClass="w-10rem border-100 p-dropdown--small">
-                        </p-dropdown>
+    <div *ngIf="!info.power_fault">
+        <!-- Row 1: Hash rate, Shares, Efficiency, Best diff (NerdQAxe style) -->
+        <div class="grid mb-3">
+            <div class="col-12 col-lg-6 col-xl-3">
+                <div class="nb-card h-full">
+                    <div class="nb-card-header">
+                        <span class="text-hint">Hash rate</span>
                     </div>
-
-                    <p-chart #chart id="chart" [data]="chartData" [options]="chartOptions"></p-chart>
-                </form>
-            </div>
-        </div>
-
-        <div class="col-12 md:col-4">
-            <div class="card-minimal">
-                <div class="section-title">Power</div>
-                <div class="mb-3">
-                    <div class="flex justify-content-between mb-1 text-sm">
-                        <span class="text-500">Power</span><span>{{ info.power }} W</span>
+                    <div class="nb-card-body">
+                        <div class="flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <ng-container *ngIf="!info.power_fault; else powerFault">
+                                    <span class="font-weight-bold text-lg">{{ info.hashRate | hashSuffix }}</span>
+                                </ng-container>
+                            </div>
+                            <div class="stat-card-icon orange">
+                                <i class="pi pi-bolt"></i>
+                            </div>
+                        </div>
+                        <span class="text-500 text-sm">{{ info.errorPercentage | number:'1.1-1' }}% err</span>
                     </div>
-                    <p-progressBar [value]="(info.power / info.maxPower) * 100" [styleClass]="'p-progressbar--thin'">
-                        <ng-template pTemplate="content" let-value></ng-template>
-                    </p-progressBar>
                 </div>
-
-                <div class="mb-3">
-                    <div class="flex justify-content-between mb-1 text-sm">
-                        <span class="text-500">Input Voltage</span><span>{{ info.voltage }} V</span>
+            </div>
+            <div class="col-12 col-lg-6 col-xl-3">
+                <div class="nb-card h-full">
+                    <div class="nb-card-header">
+                        <span class="text-hint">Shares</span>
                     </div>
-                    <div class="relative">
-                        <p-progressBar [value]="(info.voltage / (info.nominalVoltage + .5)) * 100"
-                            [styleClass]="'p-progressbar--thin'">
-                            <ng-template pTemplate="content" let-value></ng-template>
-                        </p-progressBar>
-                        <div class="absolute h-full top-0" [style.left]="(info.nominalVoltage / (info.nominalVoltage + .5)) * 100 + '%'" style="width: 3px; background: var(--surface-border);">
-                            <small class="absolute white-space-nowrap text-xs text-500" style="bottom: -1rem; transform: translateX(-50%)">
-                                {{ info.nominalVoltage }} V
-                            </small>
+                    <div class="nb-card-body">
+                        <div class="flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <span class="font-weight-bold text-lg">{{ info.sharesAccepted | number:'1.0-0' }}</span>
+                            </div>
+                            <div class="stat-card-icon blue">
+                                <i class="pi pi-chart-line"></i>
+                            </div>
+                        </div>
+                        <span class="text-danger" *ngIf="info.sharesRejected > 0">{{ info.sharesRejected }}</span>
+                        <span class="text-500 text-sm" *ngIf="info.sharesRejected > 0"> rejected</span>
+                        <span class="text-500 text-sm" *ngIf="info.sharesRejected > 0"> ({{ (info.sharesAccepted + info.sharesRejected) > 0 ? (info.sharesRejected / (info.sharesAccepted + info.sharesRejected) * 100) | number:'1.1-1' : 0 }}%)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6 col-xl-3">
+                <div class="nb-card h-full">
+                    <div class="nb-card-header">
+                        <span class="text-hint">Efficiency</span>
+                    </div>
+                    <div class="nb-card-body">
+                        <div class="flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <span class="font-weight-bold text-lg">{{ info.hashRate > 0 ? (info.power / (info.hashRate / 1000)) | number:'1.2-2' : '--' }} <small>J/Th</small></span>
+                            </div>
+                            <div class="stat-card-icon orange">
+                                <i class="pi pi-check"></i>
+                            </div>
                         </div>
                     </div>
-                    <strong class="text-red-500" *ngIf="info.voltage < (info.nominalVoltage + .5) * 0.87">
-                        Danger: Low Voltage
-                    </strong>
                 </div>
-
-                <div class="mb-3">
-                    <div class="flex justify-content-between mb-1 text-sm">
-                        <span class="text-500">ASIC Frequency</span><span>{{ info.frequency }} MHz</span>
+            </div>
+            <div class="col-12 col-lg-6 col-xl-3">
+                <div class="nb-card h-full">
+                    <div class="nb-card-header">
+                        <span class="text-hint">Best diff</span>
                     </div>
-                    <p-progressBar [value]="(info.frequency / maxFrequency) * 100" [styleClass]="'p-progressbar--thin'">
-                        <ng-template pTemplate="content" let-value></ng-template>
-                    </p-progressBar>
-                </div>
-                <div>
-                    <div class="flex justify-content-between mb-1 text-sm">
-                        <span class="text-500">ASIC Voltage</span><span>{{ info.coreVoltageActual }} V</span>
+                    <div class="nb-card-body">
+                        <div class="flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <span class="font-weight-bold text-lg">{{ info.bestDiff | diffSuffix }}</span>
+                                <small class="text-500"> all time</small>
+                            </div>
+                            <div class="stat-card-icon orange">
+                                <i class="pi pi-star-fill"></i>
+                            </div>
+                        </div>
+                        <span class="font-weight-bold">{{ info.poolDifficulty > 0 ? info.poolDifficulty : '--' }}</span>
+                        <span class="text-500 text-sm"> this boot</span>
                     </div>
-                    <p-progressBar [value]="(info.coreVoltageActual / 1.8) * 100" [styleClass]="'p-progressbar--thin'">
-                        <ng-template pTemplate="content" let-value></ng-template>
-                    </p-progressBar>
                 </div>
             </div>
         </div>
 
-        <div class="col-12 md:col-4">
-            <div class="card-minimal">
-                <div class="section-title">Heat</div>
-                <div class="mb-3">
-                    <div class="flex justify-content-between mb-1 text-sm">
-                        <ng-container *ngIf="info.temp2 > 0; else singleTemp">
-                            <span class="text-500">ASIC Temp 1</span>
-                        </ng-container>
-                        <ng-template #singleTemp><span class="text-500">ASIC Temp</span></ng-template>
-                        <span><ng-container *ngIf="info.temp > 0; else noValue">{{ info.temp }} °C</ng-container></span>
+        <!-- Chart (full width) -->
+        <div class="grid mt-3" *ngIf="!info.power_fault">
+            <div class="col-12">
+                <div class="nb-card">
+                    <div class="nb-card-header">
+                        <span class="text-hint">Hash rate chart</span>
                     </div>
-                    <p-progressBar [value]="(info.temp / maxTemp) * 100" [styleClass]="'p-progressbar--thin'">
-                        <ng-template pTemplate="content" let-value></ng-template>
-                    </p-progressBar>
-
-                    <strong class="text-red-500" *ngIf="info.temp >= 70">
-                        Danger: High Temperature
-                    </strong>
-                </div>
-
-                <div class="mb-3" *ngIf="info.temp2 > 0">
-                    <div class="flex justify-content-between mb-1 text-sm">
-                        <span class="text-500">ASIC Temp 2</span><span>{{ info.temp2 }} °C</span>
+                    <div class="nb-card-body">
+                        <form [formGroup]="form">
+                            <div class="flex flex-nowrap justify-content-between mb-3">
+                                <p-dropdown [options]="dataSourceLabels(info)" optionLabel="name" optionValue="value" formControlName="chartY1Data" styleClass="w-10rem border-100 p-dropdown--small"></p-dropdown>
+                                <p-dropdown [options]="dataSourceLabels(info)" optionLabel="name" optionValue="value" formControlName="chartY2Data" styleClass="w-10rem border-100 p-dropdown--small"></p-dropdown>
+                            </div>
+                            <p-chart #chart id="chart" [data]="chartData" [options]="chartOptions"></p-chart>
+                        </form>
                     </div>
-                    <p-progressBar [value]="(info.temp2 / maxTemp) * 100" [styleClass]="'p-progressbar--thin'">
-                        <ng-template pTemplate="content" let-value></ng-template>
-                    </p-progressBar>
-
-                    <strong class="text-red-500" *ngIf="info.temp2 >= 70">
-                        Danger: High Temperature
-                    </strong>
-                </div>
-
-                <div class="mb-3" *ngIf="info.vrTemp > 0">
-                    <div class="flex justify-content-between mb-1 text-sm">
-                        <span class="text-500">VR Temp</span><span>{{ info.vrTemp }} °C</span>
-                    </div>
-                    <p-progressBar [value]="(info.vrTemp / 120) * 100" [styleClass]="'p-progressbar--thin'">
-                        <ng-template pTemplate="content" let-value></ng-template>
-                    </p-progressBar>
-
-                    <strong class="text-red-500" *ngIf="info.vrTemp >= 105">
-                        Danger: High Temperature
-                    </strong>
                 </div>
             </div>
         </div>
 
-        <div class="col-12 md:col-4">
-            <div class="card-minimal">
-                <div class="section-title">Fan</div>
-                <div class="mb-3">
-                    <div class="flex justify-content-between mb-1 text-sm" pTooltip="{{ info.fan2rpm > 0 ? 'Fan 1: ' : '' }}{{ info.fanrpm }} RPM{{ info.fan2rpm > 0 ? ', Fan 2: ' + info.fan2rpm + ' RPM' : '' }}" tooltipPosition="top">
-                        <ng-container *ngIf="info.fan2rpm > 0; else singleFan">
-                            <span class="text-500">Fan Speeds</span>
-                        </ng-container>
-                        <ng-template #singleFan><span class="text-500">Fan Speed</span></ng-template>
-                        <span>{{ info.fanspeed.toFixed(1) }} %</span>
+        <!-- Row: Power, Heat, Performance (3 columns like NerdQAxe) -->
+        <div class="grid mt-3">
+            <div class="col-12 md:col-4">
+                <div class="nb-card h-full">
+                    <div class="nb-card-header">
+                        <span class="text-hint">Power usage</span>
                     </div>
-                    <p-progressBar [value]="info.fanspeed" [styleClass]="'p-progressbar--thin'">
-                        <ng-template pTemplate="content" let-value></ng-template>
-                    </p-progressBar>
+                    <div class="nb-card-body no-scroll">
+                        <div class="grid text-center">
+                            <div class="col-6 mb-3">
+                                <div class="text-500 text-sm mb-1">Power</div>
+                                <div class="font-weight-bold">{{ info.power }} W</div>
+                                <p-progressBar [value]="(info.power / info.maxPower) * 100" [styleClass]="'p-progressbar--thin'"><ng-template pTemplate="content" let-value></ng-template></p-progressBar>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="text-500 text-sm mb-1">Input voltage</div>
+                                <div class="font-weight-bold">{{ info.voltage }} V</div>
+                                <p-progressBar [value]="(info.voltage / (info.nominalVoltage + .5)) * 100" [styleClass]="'p-progressbar--thin'"><ng-template pTemplate="content" let-value></ng-template></p-progressBar>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="text-500 text-sm mb-1">ASIC voltage</div>
+                                <div class="font-weight-bold">{{ info.coreVoltageActual }} V</div>
+                                <p-progressBar [value]="(info.coreVoltageActual / 1.8) * 100" [styleClass]="'p-progressbar--thin'"><ng-template pTemplate="content" let-value></ng-template></p-progressBar>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="text-500 text-sm mb-1">ASIC frequency</div>
+                                <div class="font-weight-bold">{{ info.frequency }} MHz</div>
+                                <p-progressBar [value]="(info.frequency / maxFrequency) * 100" [styleClass]="'p-progressbar--thin'"><ng-template pTemplate="content" let-value></ng-template></p-progressBar>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <div class="nb-card h-full">
+                    <div class="nb-card-header">
+                        <span class="text-hint">Heat</span>
+                    </div>
+                    <div class="nb-card-body no-scroll">
+                        <div class="grid text-center">
+                            <div class="col-6 mb-3" *ngIf="info.temp2 > 0; else singleTempCol">
+                                <div class="text-500 text-sm mb-1">ASIC temp 1</div>
+                                <div class="font-weight-bold">{{ info.temp }} °C</div>
+                                <p-progressBar [value]="(info.temp / maxTemp) * 100" [styleClass]="'p-progressbar--thin'"><ng-template pTemplate="content" let-value></ng-template></p-progressBar>
+                            </div>
+                            <ng-template #singleTempCol>
+                                <div class="col-6 mb-3">
+                                    <div class="text-500 text-sm mb-1">ASIC temp</div>
+                                    <div class="font-weight-bold">{{ info.temp }} °C</div>
+                                    <p-progressBar [value]="(info.temp / maxTemp) * 100" [styleClass]="'p-progressbar--thin'"><ng-template pTemplate="content" let-value></ng-template></p-progressBar>
+                                </div>
+                            </ng-template>
+                            <div class="col-6 mb-3" *ngIf="info.temp2 > 0">
+                                <div class="text-500 text-sm mb-1">ASIC temp 2</div>
+                                <div class="font-weight-bold">{{ info.temp2 }} °C</div>
+                                <p-progressBar [value]="(info.temp2 / maxTemp) * 100" [styleClass]="'p-progressbar--thin'"><ng-template pTemplate="content" let-value></ng-template></p-progressBar>
+                            </div>
+                            <div class="col-6 mb-3" *ngIf="info.vrTemp > 0">
+                                <div class="text-500 text-sm mb-1">VR temp</div>
+                                <div class="font-weight-bold">{{ info.vrTemp }} °C</div>
+                                <p-progressBar [value]="(info.vrTemp / 120) * 100" [styleClass]="'p-progressbar--thin'"><ng-template pTemplate="content" let-value></ng-template></p-progressBar>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="text-500 text-sm mb-1">Fan speed</div>
+                                <div class="font-weight-bold">{{ info.fanspeed.toFixed(0) }} %</div>
+                                <p-progressBar [value]="info.fanspeed" [styleClass]="'p-progressbar--thin'"><ng-template pTemplate="content" let-value></ng-template></p-progressBar>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="text-500 text-sm mb-1">Fan RPM</div>
+                                <div class="font-weight-bold">{{ info.fanrpm }} RPM</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 md:col-4">
+                <div class="nb-card h-full">
+                    <div class="nb-card-header">
+                        <span class="text-hint">Performance</span>
+                    </div>
+                    <div class="nb-card-body no-scroll">
+                        <div class="grid text-center">
+                            <div class="col-6 mb-3">
+                                <div class="text-500 text-sm mb-1">ASIC frequency</div>
+                                <div class="font-weight-bold">{{ info.frequency }} MHz</div>
+                                <p-progressBar [value]="(info.frequency / maxFrequency) * 100" [styleClass]="'p-progressbar--thin'"><ng-template pTemplate="content" let-value></ng-template></p-progressBar>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="text-500 text-sm mb-1">ASIC voltage (measured)</div>
+                                <div class="font-weight-bold">{{ info.coreVoltageActual }} V</div>
+                                <p-progressBar [value]="(info.coreVoltageActual / 1.8) * 100" [styleClass]="'p-progressbar--thin'"><ng-template pTemplate="content" let-value></ng-template></p-progressBar>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-12 md:col-4" *ngIf="activePoolUser">
-            <div class="card-minimal">
-                <div class="flex flex-nowrap justify-content-between mb-2 relative">
-                    <div class="section-title mb-0">Pool</div>
-                        <a
-                            *ngIf="(quickLink$ | async) as quickLink"
-                            [href]="quickLink"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="ml-1"
-                            [attr.aria-label]="'Open pool dashboard in new tab'"
-                            pTooltip="Open pool dashboard"
-                            tooltipPosition="top"
-                        >
+        <!-- Pool info card(s) - NerdQAxe style -->
+        <div class="grid mt-3" *ngIf="activePoolUser">
+            <div class="col-12 md:col-6">
+                <div class="nb-card h-full">
+                    <div class="nb-card-header pool-header">
+                        <a *ngIf="(quickLink$ | async) as quickLink" [href]="quickLink" target="_blank" rel="noopener noreferrer">
                             <i class="pi pi-external-link"></i>
                         </a>
-                    <p-dropdown
-                        [options]="(pools$ | async) ?? []"
-                        [(ngModel)]="activePoolLabel"
-                        optionLabel="label"
-                        optionValue="value"
-                        (onChange)="onPoolChange($event)"
-                        styleClass="border-100 p-dropdown--small absolute right-0"
-                    />
-                </div>
-
-                <div class="flex flex-nowrap">
-                    <div class="col-fixed-width text-500">
-                        <span>URL</span>
-                    </div>
-                    <div>
-                        <tooltip-text-icon
-                            text="{{ activePoolURL }}:{{activePoolPort}}"
-                            tooltip="{{ info.poolConnectionInfo }}"
-                        />
-                    </div>
-                </div>
-
-                <div class="flex flex-nowrap align-items-baseline">
-                    <div class="col-fixed-width text-500">
-                        User
-                    </div>
-
-                    <div pTooltip="{{ activePoolUser }}" tooltipPosition="top" sensitive-data>
-                        <span class="text-monospace font-bold">{{ getAddressPart(activePoolUser) | address }}</span>{{ getSuffixPart(activePoolUser) }}
-                    </div>
-                </div>
-
-                <div class="flex flex-nowrap">
-                    <div class="col-fixed-width text-500">
-                        <tooltip-text-icon
-                            text="Time"
-                            tooltip="Time it takes for the pool to respond to a share"
-                        />
-                    </div>
-                    <ng-container *ngIf="info.responseTime > 0; else noValue">
-                        {{ info.responseTime | number:'1.1-1' }} ms
-                    </ng-container>
-                </div>
-                <div class="flex flex-nowrap" *ngIf="info.coinbaseOutputs.length > 0">
-                    @let percentage = getPayoutPercentage(info);
-                    <ng-container *ngIf="percentage >= 95">
-                        <div class="col-fixed-width text-500">
-                            <tooltip-text-icon text="Fee" tooltip="Percentage of the bitcoin block reward that will be paid out to the pool if you find a block." />
+                        <span class="text-hint">Pool info (Primary)</span>
+                        <p-dropdown [options]="(pools$ | async) ?? []" [(ngModel)]="activePoolLabel" optionLabel="label" optionValue="value" (onChange)="onPoolChange($event)" styleClass="border-100 p-dropdown--small ml-auto" /></div>
+                    <div class="nb-card-body">
+                        <div class="flex flex-nowrap mb-2">
+                            <div class="col-fixed-width text-500">Host:</div>
+                            <div class="break-all"><tooltip-text-icon [text]="activePoolURL + ':' + activePoolPort" [tooltip]="info.poolConnectionInfo" /></div>
                         </div>
-                        <div [style.color]="percentage < 100 ? 'inherit' : 'green'">
-                            {{ 100 - percentage | number:'1.0-1' }}%
+                        <div class="flex flex-nowrap mb-2">
+                            <div class="col-fixed-width text-500">User:</div>
+                            <div pTooltip="{{ activePoolUser }}" tooltipPosition="top" sensitive-data>
+                                <span class="ellipsis-magic" [title]="activePoolUser">
+                                    <span class="start">{{ getAddressPart(activePoolUser) | address }}</span>
+                                    <span class="end">{{ getSuffixPart(activePoolUser) }}</span>
+                                </span>
+                            </div>
                         </div>
-                    </ng-container>
-                    <ng-container *ngIf="percentage < 95">
-                        <div class="col-fixed-width text-500">
-                            <tooltip-text-icon text="Share" tooltip="Percentage of the bitcoin block reward that will be paid out to your address if you find a block." />
+                        <div class="flex flex-nowrap mb-2">
+                            <div class="col-fixed-width text-500">Time:</div>
+                            <ng-container *ngIf="info.responseTime > 0; else noValue">{{ info.responseTime | number:'1.1-1' }} ms</ng-container>
                         </div>
-                        <div *ngIf="percentage !== -1; else noValue" [style.color]="'red'">
-                            {{ percentage | number:'1.0-1' }}%
+                        <div class="flex flex-nowrap">
+                            <div class="col-fixed-width text-500">Difficulty:</div>
+                            <ng-container *ngIf="info.poolDifficulty > 0; else noValue">{{ info.poolDifficulty }}</ng-container>
                         </div>
-                    </ng-container>
-                </div>
-                <div class="flex flex-nowrap">
-                    <div class="col-fixed-width text-500">
-                        <span>Difficulty</span>
                     </div>
-                    <ng-container *ngIf="info.poolDifficulty > 0; else noValue">
-                        {{ info.poolDifficulty }}
-                    </ng-container>
+                </div>
+            </div>
+            <div class="col-12 md:col-6">
+                <div class="nb-card h-full">
+                    <div class="nb-card-header">
+                        <span class="text-hint">Block header</span>
+                    </div>
+                    <div class="nb-card-body">
+                        <div class="flex flex-nowrap mb-2">
+                            <div class="col-fixed-width text-500">Height</div>
+                            <div>{{ info.blockHeight }}</div>
+                        </div>
+                        <div class="flex flex-nowrap mb-2">
+                            <div class="col-fixed-width text-500">Difficulty</div>
+                            <div *ngIf="info.networkDifficulty" pTooltip="{{ info.networkDifficulty | number:'1.0-0' }}" tooltipPosition="bottom">{{ info.networkDifficulty | diffSuffix }}</div>
+                        </div>
+                        <div class="flex flex-nowrap">
+                            <div class="col-fixed-width text-500">Scriptsig</div>
+                            <div class="text-monospace text-sm">{{ info.scriptsig }}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-12 md:col-4">
-            <div class="card-minimal">
-                <div class="section-title">Block header</div>
-
-                <div class="flex flex-nowrap">
-                    <div class="col-fixed-width text-500">
-                        <span>Height</span>
-                    </div>
-                    <div>
-                        {{ info.blockHeight }}
-                    </div>
-                </div>
-
-                <div class="flex flex-nowrap">
-                    <div class="col-fixed-width text-500">
-                        <span>Difficulty</span>
-                    </div>
-                    <div *ngIf="info.networkDifficulty" class="cursor-pointer" pTooltip="{{info.networkDifficulty | number:'1.0-0'}}" tooltipPosition="bottom">
-                        {{ info.networkDifficulty | diffSuffix }}
-                    </div>
-                </div>
-
-                <div class="flex flex-nowrap align-items-baseline">
-                    <div class="col-fixed-width text-500">
-                        <span>Scriptsig</span>
-                    </div>
-                    <div class="text-monospace text-sm">
-                        {{ info.scriptsig }}
-                    </div>
-                </div>
-                <div class="flex flex-nowrap justify-content-between" *ngIf="info.coinbaseOutputs.length > 0">
-                    <div class="col-fixed-width text-500">
-                        <tooltip-text-icon text="Value" tooltip="Total value of transaction outputs in BTC. For non-bitcoin chains, disable 'Decode Coinbase Tx' in Advanced Pool Options." />
-                    </div>
-                    <ng-container *ngIf="info.coinbaseValueTotalSatoshis && info.coinbaseValueTotalSatoshis > 0">
-                        {{ info.coinbaseValueTotalSatoshis | sats }}
-                    </ng-container>
-                </div>                
-                <div class="flex flex-nowrap align-items-baseline" *ngIf="info.coinbaseOutputs.length > 0">
-                    <div class="col-fixed-width text-500">
-                        <span>Outputs</span>
-                    </div>
-                    <div class="w-full">
-                        <div *ngFor="let output of info.coinbaseOutputs; let i = index" class="flex justify-content-between">
-                            @if (output.value > 0) {
-                                @if (output.address === getAddressPart(activePoolUser)) {
-                                    <span><span class="text-monospace text-sm font-bold" pTooltip="Your payout address" tooltipPosition="top" sensitive-data>{{ output.address | address }}</span>&nbsp;<i class="pi pi-star-fill text-xs"></i></span>
-                                } @else {
-                                    <span class="text-monospace text-sm" pTooltip="{{ output.address }}" tooltipPosition="top">{{ output.address | address }}</span>
-                                }
-                                <span class="text-sm">{{ output.value | sats }}</span>
-                            } @else {
-                                <span class="text-monospace text-xs">{{ output.address }}</span>
-                            }
-                        </div>
-                    </div>
-                </div>
-                <div class="flex flex-nowrap align-items-baseline" *ngIf="info.coinbaseOutputs.length == 0">
-                    <div class="col-fixed-width text-500">
-                        Amount
-                    </div>
-                    <ng-container *ngIf="info.coinbaseValueTotalSatoshis && info.coinbaseValueTotalSatoshis > 0">
-                        {{ info.coinbaseValueTotalSatoshis / 100_000_000 }}
-                    </ng-container>
+        <!-- Swarm -->
+        <div class="nb-card mt-3">
+            <div class="nb-card-header flex justify-content-between align-items-center flex-wrap gap-2">
+                <span class="text-hint mb-0">Swarm</span>
+                <div class="flex align-items-center gap-2 flex-wrap">
+                    <p-button *ngIf="swarm.length" label="Chọn tất cả" icon="pi pi-check-square" [outlined]="true" size="small" (onClick)="selectAllSwarm()"></p-button>
+                    <p-dropdown *ngIf="swarmSelectedCount > 0 && poolTemplates.length" [(ngModel)]="selectedTemplateForApply" [options]="poolTemplates" optionLabel="name" placeholder="Áp dụng template" size="small" (onChange)="applyTemplateToSelected($event.value)" styleClass="p-button-outlined"></p-dropdown>
+                    <p-button *ngIf="swarmSelectedCount > 0" label="Sửa pool hàng loạt" icon="pi pi-pencil" [outlined]="true" size="small" (onClick)="openBulkEditPool()"></p-button>
+                    <span class="flex align-items-center gap-1" *ngIf="swarm.length && !swarmSelectedCount">
+                        <input pInputText [(ngModel)]="saveTemplateName" placeholder="Tên template" class="w-8rem" size="small" />
+                        <p-button label="Lưu pool hiện tại" icon="pi pi-save" [outlined]="true" size="small" (onClick)="saveCurrentAsTemplate()"></p-button>
+                    </span>
                 </div>
             </div>
-        </div>
-
-        <div class="col-12 md:col-4">
-            <div class="card-minimal">
-                <div class="section-title">Hashrate registers</div>
-
-                <ng-container *ngIf="getAsicsAmount(info) as asicAmount">
-                    <table class="heatmap text-{{asicAmount <= 2 ? 'sm' : 'xs'}}">
-                        <thead>
-                            <tr>
-                                <th *ngIf="asicAmount > 1" class="text-left">ASIC</th>
-                                <ng-container *ngIf="getAsicDomainsAmount(info) as asicDomainsAmount">
-                                    <th *ngIf="asicDomainsAmount > 0" [attr.colspan]="asicDomainsAmount">
-                                        {{ asicDomainsAmount == 1 ? "Domain" : "Domains" }}
-                                    </th>
-                                </ng-container>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="cursor-pointer" *ngFor="let asic of info.hashrateMonitor.asics; let i = index"
-                                    [pTooltip]="(asicAmount > 1 ? 'ASIC ' + (i + 1) + ' - ' : '') + 'Error count: ' + asic.errorCount"
-                                    tooltipPosition="bottom">
-                                <td *ngIf="asicAmount > 1" class="text-500 text-left">
-                                    {{ i + 1 }}
-                                </td>
-                                <td *ngFor="let domain of asic.domains"
-                                    [style.background]="getHeatmapColor(info, domain)"
-                                    [style.height]="(asicAmount <= 2 ? '2rem' : null)"
-                                    class="text-center">
-                                    <span class="text-xs">{{ domain | hashSuffix }}</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <div class="nb-card-body">
+                <ng-container *ngIf="swarm.length; else noSwarm">
+                    <div class="overflow-x-auto">
+                        <table class="table-minimal">
+                            <thead>
+                                <tr>
+                                    <th style="width: 2.5rem"><p-checkbox [binary]="true" [ngModel]="swarm.length && selectedSwarmIps.size === swarm.length" (ngModelChange)="selectAllSwarm()"></p-checkbox></th>
+                                    <th>Hostname / IP</th>
+                                    <th>Hashrate</th>
+                                    <th>Shares</th>
+                                    <th>Pool Diff</th>
+                                    <th>Temp</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let d of swarm">
+                                    <td><p-checkbox [binary]="true" [ngModel]="isSwarmSelected(d.IP)" (ngModelChange)="toggleSwarmSelection(d.IP)"></p-checkbox></td>
+                                    <td>
+                                        <a [href]="'http://' + d.IP" target="_blank" class="text-900 font-medium">{{ d.hostname || d.IP }}</a>
+                                        <span class="text-500 text-sm block">{{ d.IP }}</span>
+                                    </td>
+                                    <td>{{ d.hashRate | hashSuffix }}</td>
+                                    <td>{{ d.sharesAccepted | number:'1.0-0' }}</td>
+                                    <td>{{ d.poolDifficulty }}</td>
+                                    <td>{{ d.temp > 0 ? (d.temp | number:'1.0-0') + ' °C' : '--' }}</td>
+                                    <td>
+                                        <a [routerLink]="['/pool']" [queryParams]="{ device: d.IP }" pButton icon="pi pi-cog" class="p-button-text p-button-sm"></a>
+                                        <a [href]="'http://' + d.IP" target="_blank" pButton icon="pi pi-external-link" class="p-button-text p-button-sm"></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </ng-container>
+                <ng-template #noSwarm>
+                    <p class="text-500 text-sm m-0">Chưa có thiết bị trong swarm. Vào <a routerLink="/swarm">Swarm</a> để quét mạng hoặc thêm thiết bị.</p>
+                </ng-template>
             </div>
+        </div>
+
+        <!-- Hashrate registers -->
+        <div class="grid mt-3">
+            <div class="col-12">
+                <div class="nb-card">
+                    <div class="nb-card-header">
+                        <span class="text-hint">Hashrate registers</span>
+                    </div>
+                    <div class="nb-card-body">
+                        <ng-container *ngIf="getAsicsAmount(info) as asicAmount">
+                            <table class="heatmap text-{{ asicAmount <= 2 ? 'sm' : 'xs' }}">
+                                <thead>
+                                    <tr>
+                                        <th *ngIf="asicAmount > 1" class="text-left">ASIC</th>
+                                        <ng-container *ngIf="getAsicDomainsAmount(info) as asicDomainsAmount">
+                                            <th *ngIf="asicDomainsAmount > 0" [attr.colspan]="asicDomainsAmount">{{ asicDomainsAmount == 1 ? 'Domain' : 'Domains' }}</th>
+                                        </ng-container>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="cursor-pointer" *ngFor="let asic of info.hashrateMonitor.asics; let i = index" [pTooltip]="(asicAmount > 1 ? 'ASIC ' + (i + 1) + ' - ' : '') + 'Error count: ' + asic.errorCount" tooltipPosition="bottom">
+                                        <td *ngIf="asicAmount > 1" class="text-500 text-left">{{ i + 1 }}</td>
+                                        <td *ngFor="let domain of asic.domains" [style.background]="getHeatmapColor(info, domain)" [style.height]="(asicAmount <= 2 ? '2rem' : null)" class="text-center">
+                                            <span class="text-xs">{{ domain | hashSuffix }}</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="info.power_fault" class="nb-card">
+        <div class="nb-card-body">
+            <h4 class="text-red-500 m-0">Not available - Power fault</h4>
         </div>
     </div>
 
     <app-confetti *ngIf="info.showNewBlock"></app-confetti>
 
-    <!-- Bulk Edit Pool Dialog -->
     <p-dialog header="Sửa pool hàng loạt" [(visible)]="showBulkPoolDialog" [modal]="true" [style]="{ width: '28rem' }" [draggable]="false" [resizable]="false" (onHide)="closeBulkPoolDialog()">
         <form [formGroup]="bulkPoolForm" class="flex flex-column gap-3">
             <div class="form-row">
