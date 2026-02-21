@@ -264,7 +264,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         stratumPort: info.stratumPort,
         stratumUser: info.stratumUser,
         stratumPassword: '', // not stored for security; user re-enters when editing
-        stratumTLS: info.stratumTLS ?? 0,
+        stratumTLS: Number(info.stratumTLS ?? 0),
         stratumSuggestedDifficulty: info.stratumSuggestedDifficulty,
         stratumExtranonceSubscribe: info.stratumExtranonceSubscribe ?? false,
         stratumDecodeCoinbase: info.stratumDecodeCoinbase ?? true

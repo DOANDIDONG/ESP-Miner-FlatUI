@@ -496,7 +496,7 @@
         </form>
         <ng-template pTemplate="footer">
             <p-button label="Hủy" (onClick)="closeBulkPoolDialog()" [text]="true"></p-button>
-            <p-button label="Áp dụng cho {{ swarmSelectedCount }} thiết bị" (onClick)="saveBulkPool()" [loading]="bulkPoolSaving" [disabled]="bulkPoolForm?.invalid"></p-button>
+            <p-button label="Áp dụng cho {{ swarmSelectedCount }} thiết bị" (onClick)="saveBulkPool()" [loading]="bulkPoolSaving" [disabled]="bulkPoolForm.invalid"></p-button>
         </ng-template>
     </p-dialog>
 </ng-container>
