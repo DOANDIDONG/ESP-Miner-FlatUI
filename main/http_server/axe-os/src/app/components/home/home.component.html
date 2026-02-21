@@ -24,36 +24,44 @@
         </div>
     </div>
 
-    <!-- Stats row: card-based dashboard -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div class="rounded-2xl shadow-sm bg-gradient-to-br from-amber-50 to-rose-50 dark:from-amber-950/30 dark:to-rose-950/30 p-4 border border-gray-100 dark:border-gray-800">
-            <div class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Hashrate</div>
-            <ng-container *ngIf="!info.power_fault; else powerFault">
-                <span class="text-gray-900 dark:text-gray-100 font-semibold text-xl">{{ info.hashRate | hashSuffix }}</span>
-                <span class="text-gray-500 text-sm ml-2">{{ info.errorPercentage | number:'1.1-1' }}% err</span>
-            </ng-container>
+    <!-- Stats row (NerdQAxe style: white cards, clear labels) -->
+    <div class="grid mb-3">
+        <div class="col-6 md:col-3">
+            <div class="card-minimal">
+                <div class="section-title">Hash rate</div>
+                <ng-container *ngIf="!info.power_fault; else powerFault">
+                    <span class="text-900 font-semibold text-xl">{{ info.hashRate | hashSuffix }}</span>
+                    <span class="text-500 text-sm ml-2">{{ info.errorPercentage | number:'1.1-1' }}% err</span>
+                </ng-container>
+            </div>
         </div>
-        <div class="rounded-2xl shadow-sm bg-gradient-to-br from-sky-50 to-emerald-50 dark:from-sky-950/30 dark:to-emerald-950/30 p-4 border border-gray-100 dark:border-gray-800">
-            <div class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Shares</div>
-            <span class="text-gray-900 dark:text-gray-100 font-semibold text-xl">{{ info.sharesAccepted | number:'1.0-0' }}</span>
-            <span class="text-gray-500 text-sm ml-2" *ngIf="info.sharesRejected > 0">{{ info.sharesRejected }} rej</span>
+        <div class="col-6 md:col-3">
+            <div class="card-minimal">
+                <div class="section-title">Shares</div>
+                <span class="text-900 font-semibold text-xl">{{ info.sharesAccepted | number:'1.0-0' }}</span>
+                <span class="text-500 text-sm ml-2" *ngIf="info.sharesRejected > 0">{{ info.sharesRejected }} rej</span>
+            </div>
         </div>
-        <div class="rounded-2xl shadow-sm bg-white dark:bg-gray-900/50 p-4 border border-gray-100 dark:border-gray-800">
-            <div class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Best Diff</div>
-            <span class="text-gray-900 dark:text-gray-100 font-semibold text-xl">{{ info.bestDiff | diffSuffix }}</span>
+        <div class="col-6 md:col-3">
+            <div class="card-minimal">
+                <div class="section-title">Best diff</div>
+                <span class="text-900 font-semibold text-xl">{{ info.bestDiff | diffSuffix }}</span>
+            </div>
         </div>
-        <div class="rounded-2xl shadow-sm bg-white dark:bg-gray-900/50 p-4 border border-gray-100 dark:border-gray-800">
-            <div class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Pool</div>
-            <span class="text-gray-900 dark:text-gray-100 font-medium" *ngIf="activePoolURL">{{ activePoolURL }}:{{ activePoolPort }}</span>
-            <span class="text-gray-500 text-sm" *ngIf="info.responseTime > 0">{{ info.responseTime | number:'1.0-0' }} ms</span>
+        <div class="col-6 md:col-3">
+            <div class="card-minimal">
+                <div class="section-title">Pool</div>
+                <span class="text-900 font-medium" *ngIf="activePoolURL">{{ activePoolURL }}:{{ activePoolPort }}</span>
+                <span class="text-500 text-sm" *ngIf="info.responseTime > 0">{{ info.responseTime | number:'1.0-0' }} ms</span>
+            </div>
         </div>
     </div>
 
     <!-- Swarm -->
-    <div class="rounded-2xl shadow-sm bg-white dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800 p-4 mb-6">
-        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-            <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">Swarm</span>
-            <div class="flex items-center gap-2 flex-wrap">
+    <div class="card-minimal mb-3">
+        <div class="flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+            <span class="section-title mb-0">Swarm</span>
+            <div class="flex align-items-center gap-2 flex-wrap">
                 <p-button *ngIf="swarm.length" label="Chọn tất cả" icon="pi pi-check-square" [outlined]="true" size="small" (onClick)="selectAllSwarm()"></p-button>
                 <p-dropdown *ngIf="swarmSelectedCount > 0 && poolTemplates.length" [(ngModel)]="selectedTemplateForApply" [options]="poolTemplates" optionLabel="name" placeholder="Áp dụng template" size="small" (onChange)="applyTemplateToSelected($event.value)" styleClass="p-button-outlined"></p-dropdown>
                 <p-button *ngIf="swarmSelectedCount > 0" label="Sửa pool hàng loạt" icon="pi pi-pencil" [outlined]="true" size="small" (onClick)="openBulkEditPool()"></p-button>
@@ -102,10 +110,10 @@
         </ng-template>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2" *ngIf="!info.power_fault">
-            <div class="rounded-2xl shadow-sm bg-white dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800 p-4">
-                <div class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Chart</div>
+    <div class="grid">
+        <div class="col-12" *ngIf="!info.power_fault">
+            <div class="card-minimal">
+                <div class="section-title mb-2">Hash rate chart</div>
                 <form [formGroup]="form">
                     <div class="flex flex-nowrap justify-content-between mb-3">
                         <p-dropdown
@@ -129,8 +137,8 @@
             </div>
         </div>
 
-        <div>
-            <div class="rounded-2xl shadow-sm bg-white dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800 p-4">
+        <div class="col-12 md:col-4">
+            <div class="card-minimal">
                 <div class="section-title">Power</div>
                 <div class="mb-3">
                     <div class="flex justify-content-between mb-1 text-sm">
@@ -180,8 +188,8 @@
             </div>
         </div>
 
-        <div>
-            <div class="rounded-2xl shadow-sm bg-white dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800 p-4">
+        <div class="col-12 md:col-4">
+            <div class="card-minimal">
                 <div class="section-title">Heat</div>
                 <div class="mb-3">
                     <div class="flex justify-content-between mb-1 text-sm">
@@ -228,8 +236,8 @@
             </div>
         </div>
 
-        <div>
-            <div class="rounded-2xl shadow-sm bg-white dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800 p-4">
+        <div class="col-12 md:col-4">
+            <div class="card-minimal">
                 <div class="section-title">Fan</div>
                 <div class="mb-3">
                     <div class="flex justify-content-between mb-1 text-sm" pTooltip="{{ info.fan2rpm > 0 ? 'Fan 1: ' : '' }}{{ info.fanrpm }} RPM{{ info.fan2rpm > 0 ? ', Fan 2: ' + info.fan2rpm + ' RPM' : '' }}" tooltipPosition="top">
@@ -246,9 +254,9 @@
             </div>
         </div>
 
-        <div *ngIf="activePoolUser">
-            <div class="rounded-2xl shadow-sm bg-white dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800 p-4">
-                <div class="flex flex-nowrap justify-between mb-2 relative">
+        <div class="col-12 md:col-4" *ngIf="activePoolUser">
+            <div class="card-minimal">
+                <div class="flex flex-nowrap justify-content-between mb-2 relative">
                     <div class="section-title mb-0">Pool</div>
                         <a
                             *ngIf="(quickLink$ | async) as quickLink"
@@ -335,9 +343,9 @@
             </div>
         </div>
 
-        <div>
-            <div class="rounded-2xl shadow-sm bg-white dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800 p-4">
-                <div class="section-title">Block Header</div>
+        <div class="col-12 md:col-4">
+            <div class="card-minimal">
+                <div class="section-title">Block header</div>
 
                 <div class="flex flex-nowrap">
                     <div class="col-fixed-width text-500">
@@ -403,9 +411,9 @@
             </div>
         </div>
 
-        <div>
-            <div class="rounded-2xl shadow-sm bg-white dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800 p-4">
-                <div class="section-title">Hashrate Registers</div>
+        <div class="col-12 md:col-4">
+            <div class="card-minimal">
+                <div class="section-title">Hashrate registers</div>
 
                 <ng-container *ngIf="getAsicsAmount(info) as asicAmount">
                     <table class="heatmap text-{{asicAmount <= 2 ? 'sm' : 'xs'}}">

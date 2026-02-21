@@ -11,11 +11,31 @@
 }
 
 .layout-topbar .layout-topbar-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-left: 0.25rem;
+    border-radius: 6px;
+    color: var(--text-color);
     cursor: pointer;
     transition: background-color $transitionDuration;
-    &:focus {
-        @include focused();
-    }
+    &:hover { background-color: var(--surface-hover); }
+    &:focus { @include focused(); }
+    i { font-size: 1.25rem; }
+}
+.layout-topbar .topbar-actions .topbar-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    margin-left: 0.125rem;
+    border-radius: 6px;
+    color: var(--text-color);
+    &:hover { background: var(--surface-hover); }
+    i { font-size: 1.125rem; }
 }
 
 .layout-topbar .topbar-logo {
