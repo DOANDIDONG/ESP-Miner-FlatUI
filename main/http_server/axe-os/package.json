@@ -6,9 +6,11 @@
   },
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "npm run generate:api && ng build --configuration=production && gzipper compress --verbose --gzip --gzip-level 9 --exclude woff2 ./dist/axe-os && node only-gzip.js && node generate-version.js",
-    "build:no-api-gen": "ng build --configuration=production && gzipper compress --verbose --gzip --gzip-level 9 --exclude woff2 ./dist/axe-os && node only-gzip.js && node generate-version.js",
+    "tailwind:build": "tailwindcss -i src/tailwind.src.css -o src/tailwind.generated.css",
+    "tailwind:watch": "tailwindcss -i src/tailwind.src.css -o src/tailwind.generated.css --watch",
+    "start": "npm run tailwind:build && ng serve",
+    "build": "npm run tailwind:build && npm run generate:api && ng build --configuration=production && gzipper compress --verbose --gzip --gzip-level 9 --exclude woff2 ./dist/axe-os && node only-gzip.js && node generate-version.js",
+    "build:no-api-gen": "npm run tailwind:build && ng build --configuration=production && gzipper compress --verbose --gzip --gzip-level 9 --exclude woff2 ./dist/axe-os && node only-gzip.js && node generate-version.js",
     "watch": "ng build --watch --configuration development",
     "test": "ng test --watch=false --browsers=ChromeHeadless",
     "generate:api": "rm -rf ./src/app/generated && openapi-generator-cli generate",
@@ -41,6 +43,7 @@
     "@angular/compiler-cli": "^18.2.13",
     "@openapitools/openapi-generator-cli": "^2.25.2",
     "@types/jasmine": "^5.1.5",
+    "autoprefixer": "^10.4.24",
     "chokidar": "^3.6.0",
     "gzipper": "^8.2.0",
     "jasmine-core": "^5.5.0",
@@ -49,6 +52,8 @@
     "karma-coverage": "^2.2.1",
     "karma-jasmine": "^5.1.0",
     "karma-jasmine-html-reporter": "^2.1.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.19",
     "typescript": "^5.5.4",
     "webpack-bundle-analyzer": "^4.10.2"
   }

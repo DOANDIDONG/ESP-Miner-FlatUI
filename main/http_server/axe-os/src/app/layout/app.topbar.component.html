@@ -1,32 +1,64 @@
-<div class="layout-topbar">
-    <a routerLink="/" class="topbar-logo">
-        <span class="topbar-logo-text">AxeOS</span>
+<div class="layout-topbar flex items-center justify-between gap-4 w-full px-4 md:px-6">
+  <!-- Left: Logo + Welcome -->
+  <div class="flex items-center gap-4 min-w-0">
+    <a routerLink="/" class="topbar-logo flex items-center gap-2 shrink-0">
+      <span class="topbar-logo-text">AxeOS</span>
     </a>
-
     <ng-container *ngIf="info$ | async as info">
-        <span class="topbar-hostname" pTooltip="Hostname" tooltipPosition="bottom">{{ info.hostname }}</span>
+      <div class="hidden sm:block min-w-0">
+        <p class="text-sm font-medium text-gray-900 truncate m-0">Welcome, {{ info.hostname || 'Miner' }}</p>
+        <p class="text-xs text-gray-500 truncate m-0">Your mining dashboard overview</p>
+      </div>
+    </ng-container>
+  </div>
 
-        <ul *ngIf="!isAPMode" class="topbar-actions">
-            <li>
-                <a class="topbar-icon" pTooltip="Sensitive data {{ sensitiveDataHidden ? 'hidden' : 'visible' }}" tooltipPosition="bottom" (click)="toggleSensitiveData()">
-                    <i class="pi pi-{{ sensitiveDataHidden ? 'eye-slash' : 'eye' }}"></i>
-                </a>
-            </li>
-            <li>
-                <a routerLink="network" class="topbar-icon" pTooltip="Wi-Fi RSSI: {{ info.wifiRSSI }} dBm" tooltipPosition="bottom">
-                    <wifi-icon [rssi]="info.wifiRSSI"></wifi-icon>
-                </a>
-            </li>
-            <li>
-                <a class="topbar-icon" pTooltip="Restart" tooltipPosition="bottom" (click)="restart()">
-                    <i class="pi pi-refresh"></i>
-                </a>
-            </li>
-        </ul>
+  <!-- Center: Search (optional placeholder) -->
+  <div class="hidden md:flex flex-1 max-w-md mx-4">
+    <div class="relative w-full">
+      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+        <i class="pi pi-search text-sm"></i>
+      </span>
+      <input
+        type="text"
+        placeholder="Search"
+        class="w-full pl-9 pr-4 py-2 rounded-xl border border-gray-200 bg-gray-50/80 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+        readonly
+        tabindex="-1"
+      />
+    </div>
+  </div>
+
+  <!-- Right: Actions + Profile -->
+  <div class="flex items-center gap-1 shrink-0">
+    <ng-container *ngIf="info$ | async as info">
+      <span class="topbar-hostname text-gray-500 text-sm mr-1 hidden lg:inline" pTooltip="Hostname" tooltipPosition="bottom">{{ info.hostname }}</span>
+
+      <ul *ngIf="!isAPMode" class="topbar-actions flex items-center list-none m-0 p-0 gap-1">
+        <li>
+          <a class="topbar-icon w-9 h-9 flex items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100" pTooltip="Sensitive data {{ sensitiveDataHidden ? 'hidden' : 'visible' }}" tooltipPosition="bottom" (click)="toggleSensitiveData()">
+            <i class="pi pi-{{ sensitiveDataHidden ? 'eye-slash' : 'eye' }} text-base"></i>
+          </a>
+        </li>
+        <li>
+          <a routerLink="network" class="topbar-icon w-9 h-9 flex items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100" pTooltip="Wi-Fi RSSI: {{ info.wifiRSSI }} dBm" tooltipPosition="bottom">
+            <wifi-icon [rssi]="info.wifiRSSI"></wifi-icon>
+          </a>
+        </li>
+        <li>
+          <a class="topbar-icon w-9 h-9 flex items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100" pTooltip="Restart" tooltipPosition="bottom" (click)="restart()">
+            <i class="pi pi-refresh text-base"></i>
+          </a>
+        </li>
+      </ul>
     </ng-container>
 
-    <button *ngIf="!isAPMode" #menubutton class="p-link layout-topbar-button"
-        (click)="layoutService.onMenuToggle()">
-        <i class="pi pi-bars"></i>
+    <!-- Profile / device avatar -->
+    <div class="hidden sm:flex items-center justify-center w-9 h-9 rounded-full bg-blue-100 text-blue-600 ml-1" *ngIf="info$ | async" pTooltip="Device" tooltipPosition="bottom">
+      <i class="pi pi-desktop text-sm"></i>
+    </div>
+
+    <button *ngIf="!isAPMode" #menubutton class="layout-topbar-button md:ml-2 w-10 h-10 flex items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100" (click)="layoutService.onMenuToggle()">
+      <i class="pi pi-bars text-xl"></i>
     </button>
+  </div>
 </div>

@@ -5,87 +5,33 @@
     left: 0;
     top: 0;
     width: 100%;
-    padding: 0 1.25rem;
     background: var(--surface-card);
     border-bottom: 1px solid var(--surface-border);
     transition: left $transitionDuration;
-    display: flex;
-    align-items: center;
+}
 
-    @media screen and (max-width: 575px) {
-        justify-content: space-between;
+.layout-topbar .layout-topbar-button {
+    cursor: pointer;
+    transition: background-color $transitionDuration;
+    &:focus {
+        @include focused();
     }
-    @media screen and (max-width: 768px) {
-        padding: 0 0.75rem;
-    }
+}
 
-    .layout-topbar-button {
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-        color: var(--text-color);
-        border-radius: 6px;
-        width: 2.5rem;
-        height: 2.5rem;
-        cursor: pointer;
-        transition: background-color $transitionDuration;
-        margin-left: 0.5rem;
-
-        @media screen and (min-width: 576px) {
-            margin-left: 1rem;
-        }
-
-        &:hover {
-            background-color: var(--surface-hover);
-        }
-
-        &:focus {
-            @include focused();
-        }
-
-        i {
-            font-size: 1.25rem;
-        }
-    }
-
-    .topbar-logo {
-        color: var(--text-color);
-        font-weight: 600;
-        font-size: 1.125rem;
-        letter-spacing: 0.02em;
-    }
-    .topbar-logo-text {
-        letter-spacing: 0.04em;
-    }
-    .topbar-hostname {
-        color: var(--text-color-secondary);
-        font-size: 0.8125rem;
-        margin-left: 1rem;
-    }
-    .topbar-actions {
-        display: flex;
-        align-items: center;
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        gap: 0.25rem;
-        margin-left: auto;
-    }
-    .topbar-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 2.25rem;
-        height: 2.25rem;
-        border-radius: 6px;
-        color: var(--text-color);
-        transition: background-color $transitionDuration;
-        &:hover {
-            background: var(--surface-hover);
-        }
-        i {
-            font-size: 1.125rem;
-        }
-    }
+.layout-topbar .topbar-logo {
+    color: var(--text-color);
+    font-weight: 600;
+    font-size: 1.125rem;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+}
+.layout-topbar .topbar-logo-text {
+    letter-spacing: 0.04em;
+}
+.layout-topbar .topbar-hostname {
+    color: var(--text-color-secondary);
+}
+.layout-topbar .topbar-icon {
+    text-decoration: none;
+    transition: background-color $transitionDuration;
 }
