@@ -26,6 +26,7 @@
     "@angular/platform-browser": "^18.2.13",
     "@angular/platform-browser-dynamic": "^18.2.13",
     "@angular/router": "^18.2.13",
+    "@tabler/core": "^1.4.0",
     "@xterm/xterm": "^5.5.0",
     "chart.js": "^4.4.7",
     "chartjs-adapter-moment": "^1.0.1",

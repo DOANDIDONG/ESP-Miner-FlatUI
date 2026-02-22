@@ -34,6 +34,7 @@
               "src/bitcoin.pdf"
             ],
             "styles": [
+              "node_modules/@tabler/core/dist/css/tabler.min.css",
               "src/styles.scss",
               "node_modules/ngx-toastr/toastr.css"
             ],

@@ -1,0 +1,110 @@
+// Minimal dashboard layout: topbar + narrow icon sidebar + content
+$topbar-height: 3.5rem;
+$sidebar-width: 4rem;
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.page > header.navbar {
+  flex-shrink: 0;
+}
+
+// Sidebar: narrow, fixed left, icon-only
+.page > app-sidebar {
+  position: fixed;
+  top: $topbar-height;
+  left: 0;
+  bottom: 0;
+  z-index: 1020;
+  width: $sidebar-width;
+  display: flex;
+  flex-direction: column;
+  background: var(--tblr-bg-surface, #fff);
+  border-right: 1px solid var(--tblr-border-color, rgba(0, 0, 0, 0.08));
+
+  .navbar-expand-md {
+    height: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .navbar-collapse {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .navbar-nav {
+    flex-direction: column;
+    padding: 0.5rem 0;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem;
+    color: var(--tblr-body-color, #206bc4);
+    border-radius: 0;
+    border-left: 3px solid transparent;
+
+    .nav-icon,
+    .pi {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+
+    &.active {
+      font-weight: 600;
+      background: var(--tblr-bg-surface-secondary, rgba(0, 0, 0, 0.04));
+      border-left-color: #f59f00;
+    }
+
+    &:hover {
+      background: var(--tblr-bg-surface-secondary, rgba(0, 0, 0, 0.04));
+    }
+  }
+}
+
+.page-wrapper {
+  flex: 1;
+  margin-left: $sidebar-width;
+  padding-top: $topbar-height;
+  min-height: calc(100vh - #{$topbar-height});
+}
+
+.page-body {
+  padding: 1.5rem 0;
+}
+
+.layout-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1010;
+}
+
+@media (max-width: 767.98px) {
+  .page > app-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+
+    .navbar-collapse.show {
+      display: flex;
+    }
+  }
+
+  .page.sidebar-open > app-sidebar {
+    transform: translateX(0);
+  }
+
+  .page-wrapper {
+    margin-left: 0;
+  }
+}

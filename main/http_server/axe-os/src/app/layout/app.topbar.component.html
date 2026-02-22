@@ -1,35 +1,33 @@
-<div class="layout-topbar flex items-center justify-between w-full px-4">
-  <div class="flex items-center gap-3 min-w-0">
-    <a routerLink="/" class="topbar-logo shrink-0">
-      <span class="topbar-logo-text">Nerd* Dashboard</span>
-    </a>
-    <ng-container *ngIf="info$ | async as info">
-      <span class="topbar-hostname text-sm text-gray-600 truncate" pTooltip="Hostname" tooltipPosition="bottom">{{ info.hostname }}</span>
-    </ng-container>
-  </div>
-
-  <div class="flex items-center gap-0 shrink-0">
-    <ng-container *ngIf="info$ | async as info">
-      <ul *ngIf="!isAPMode" class="topbar-actions flex items-center list-none m-0 p-0">
-        <li>
-          <a class="topbar-icon" pTooltip="Sensitive data {{ sensitiveDataHidden ? 'hidden' : 'visible' }}" tooltipPosition="bottom" (click)="toggleSensitiveData()">
-            <i class="pi pi-{{ sensitiveDataHidden ? 'eye-slash' : 'eye' }}"></i>
-          </a>
-        </li>
-        <li>
-          <a routerLink="network" class="topbar-icon" pTooltip="Wi-Fi RSSI: {{ info.wifiRSSI }} dBm" tooltipPosition="bottom">
-            <wifi-icon [rssi]="info.wifiRSSI"></wifi-icon>
-          </a>
-        </li>
-        <li>
-          <a class="topbar-icon" pTooltip="Restart" tooltipPosition="bottom" (click)="restart()">
-            <i class="pi pi-refresh"></i>
-          </a>
-        </li>
-      </ul>
-    </ng-container>
-    <button *ngIf="!isAPMode" #menubutton class="layout-topbar-button" (click)="layoutService.onMenuToggle()">
-      <i class="pi pi-bars"></i>
+<header class="navbar navbar-expand-md d-print-none fixed-top">
+  <div class="container-xl">
+    <button #menubutton class="navbar-toggler" type="button" (click)="layoutService.onMenuToggle()" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
     </button>
+    <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
+      <a routerLink="/">
+        Dashboard
+        <small class="text-muted d-block small mt-0" *ngIf="info$ | async as info">{{ info.hostname }}</small>
+      </a>
+    </h1>
+    <div class="navbar-nav flex-row order-md-last flex-grow-1 justify-content-end">
+      <div class="d-none d-md-flex align-items-center me-3">
+        <span class="input-icon input-icon-sm">
+          <span class="input-icon-addon"><i class="pi pi-search"></i></span>
+          <input type="text" class="form-control form-control-sm" placeholder="Search" readonly tabindex="-1" />
+        </span>
+      </div>
+      <ng-container *ngIf="info$ | async as info">
+        <a class="nav-link px-2" routerLink="network" pTooltip="Wi-Fi" tooltipPosition="bottom"><wifi-icon [rssi]="info.wifiRSSI"></wifi-icon></a>
+        <a class="nav-link px-2" href="javascript:void(0)" (click)="toggleSensitiveData()" pTooltip="Sensitive data" tooltipPosition="bottom"><i class="pi pi-{{ sensitiveDataHidden ? 'eye-slash' : 'eye' }}"></i></a>
+        <a class="nav-link px-2" href="javascript:void(0)" (click)="restart()" pTooltip="Restart" tooltipPosition="bottom"><i class="pi pi-refresh"></i></a>
+      </ng-container>
+      <a class="nav-link px-2" routerLink="settings" pTooltip="Settings" tooltipPosition="bottom"><i class="pi pi-cog"></i></a>
+      <div class="nav-item dropdown">
+        <a href="javascript:void(0)" class="nav-link d-flex lh-1 text-reset p-0">
+          <span class="avatar avatar-sm rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"><i class="pi pi-desktop"></i></span>
+          <span class="d-none d-md-block ps-2" *ngIf="info$ | async as info">{{ info.hostname }}</span>
+        </a>
+      </div>
+    </div>
   </div>
-</div>
+</header>

@@ -1,1 +1,18 @@
- <app-menu></app-menu>
+<div class="navbar-expand-md">
+  <div class="collapse navbar-collapse" [class.show]="layoutService.state.staticMenuMobileActive" id="sidebar-menu">
+    <div class="navbar navbar-light pt-0 pb-0">
+      <div class="container-fluid">
+        <ul class="navbar-nav flex-row flex-md-column">
+          <li class="nav-item">
+            <a routerLink="/" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{exact: true}"><i class="pi pi-home nav-icon"></i></a>
+          </li>
+          <li class="nav-item"><a routerLink="pool" routerLinkActive="active" class="nav-link"><i class="pi pi-server nav-icon"></i></a></li>
+          <li class="nav-item"><a routerLink="network" routerLinkActive="active" class="nav-link"><i class="pi pi-wifi nav-icon"></i></a></li>
+          <li class="nav-item"><a routerLink="settings" routerLinkActive="active" class="nav-link"><i class="pi pi-cog nav-icon"></i></a></li>
+          <li class="nav-item"><a routerLink="system" routerLinkActive="active" class="nav-link"><i class="pi pi-wave-pulse nav-icon"></i></a></li>
+          <li class="nav-item"><a routerLink="update" routerLinkActive="active" class="nav-link"><i class="pi pi-sync nav-icon"></i></a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
